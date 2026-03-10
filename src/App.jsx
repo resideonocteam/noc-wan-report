@@ -660,7 +660,7 @@ function WorkspaceView({ data, setData, onAdd, onEdit, onDelete, onEmail, onSend
   const [sent, setSent] = useState(false);
   const doSend = () => onSend(setSent);
   return (
-    <div style={{ maxWidth: 1140, margin: "0 auto", padding: "24px 16px" }}>
+    <div style={{ maxWidth: 1140, margin: "0 auto", padding: "40px 24px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 32, marginBottom: 40, alignItems: "start" }}>
         <div>
           <h1 style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: 38, color: C.textPrimary, letterSpacing: "-0.01em", marginBottom: 24 }}>Resideo Network Health Report</h1>
@@ -760,18 +760,18 @@ function ReportView({ data, darkMode, C }) {
   return (
     <div style={{ maxWidth: 1140, margin: "0 auto", padding: "40px 24px" }}>
       {/* Header */}
-      <div className="report-header" style={{ marginBottom: 36 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 32, marginBottom: 36 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 10 }}>
             <div style={{ width: 4, height: 52, background: SHARED.accent, borderRadius: 2, flexShrink: 0 }} />
-            <span className="report-title" style={{ fontFamily: SHARED.head, fontWeight: 900, color: C.textPrimary, letterSpacing: "-0.02em" }}>NOC WAN HEALTH</span>
+            <span style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: 44, color: C.textPrimary, letterSpacing: "-0.02em" }}>NOC WAN HEALTH</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 20 }}>
             <span style={{ fontSize: 13, color: C.textMuted }}>📅</span>
             <span style={{ fontFamily: SHARED.body, fontSize: 13, color: C.textSecondary }}>CYCLE: {reportDate} • DISTRIBUTION: {recipientEmail}</span>
           </div>
         </div>
-        <div className="report-header-cards">
+        <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
           <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px 20px", minWidth: 140 }}>
             <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, textTransform: "uppercase", marginBottom: 10 }}>Network Engineer</div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -792,10 +792,10 @@ function ReportView({ data, darkMode, C }) {
         <Label C={C} style={{ marginBottom: 20 }}>Summary</Label>
         <div style={{ display: "flex", alignItems: "center" }}>
           <div style={{ flex: 1 }}>
-            <div className="summary-kpis" style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", gap: 48, marginBottom: 24 }}>
               {[[hardDown,"SITES DOWN",SHARED.red],[degraded,"DEGRADED",SHARED.orange],[resolved,"RESOLVED",SHARED.green]].map(([val,lbl,col]) => (
                 <div key={lbl}>
-                  <div className="summary-kpi-num" style={{ fontFamily: SHARED.head, fontWeight: 900, color: col, lineHeight: 1 }}>{val}</div>
+                  <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: 48, color: col, lineHeight: 1 }}>{val}</div>
                   <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, marginTop: 4, textTransform: "uppercase" }}>{lbl}</div>
                 </div>
               ))}
@@ -835,8 +835,8 @@ function ReportView({ data, darkMode, C }) {
               <span style={{ fontFamily: SHARED.body, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: C.textMuted, textTransform: "uppercase" }}>{group.items.length} Node{group.items.length !== 1 ? "s" : ""} Impacted</span>
             </div>
             {group.items.map(inc => (
-              <div key={inc.id} className="incident-card" style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, marginBottom: 20 }}>
-                <div className="incident-grid">
+              <div key={inc.id} style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, padding: 32, marginBottom: 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 32 }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                       <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.getColor(), flexShrink: 0, display: "inline-block" }} />
@@ -1006,7 +1006,7 @@ function PublicReport() {
   return (
     <div style={{ background: C.bg, minHeight: "100vh", color: C.textPrimary, fontFamily: "'Inter', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
-      <div style={{ background: SHARED.accent, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
+      <div style={{ background: SHARED.accent, padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 18 }}>⚡</span>
           <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 800, fontSize: 14, color: "#fff", letterSpacing: "0.05em" }}>WANINSIGHT · RESIDEO NOC</span>
@@ -1140,32 +1140,6 @@ For circuit-level details, engineer handover notes, and incident logs, please ac
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #2a3040; border-radius: 3px; }
         option { background: #1e2636; }
-        .report-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin-bottom: 36px; }
-        .report-header-cards { display: flex; gap: 12px; flex-shrink: 0; }
-        .report-title { font-size: 44px; }
-        .summary-kpis { display: flex; gap: 48px; margin-bottom: 24px; }
-        .summary-kpi-num { font-size: 48px; }
-        .incident-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; }
-        .incident-card { padding: 32px; }
-        .nav-tabs { display: flex; gap: 2px; }
-        .nav-right { display: flex; align-items: center; gap: 8px; }
-        @media (max-width: 768px) {
-          .report-header { flex-direction: column; gap: 16px; }
-          .report-header-cards { width: 100%; }
-          .report-header-cards > div { flex: 1; min-width: 0; }
-          .report-title { font-size: 28px !important; }
-          .summary-kpis { gap: 20px; }
-          .summary-kpi-num { font-size: 32px !important; }
-          .incident-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
-          .incident-card { padding: 18px !important; }
-          .nav-tabs span { display: none; }
-          .nav-right .user-name { display: none; }
-        }
-        @media (max-width: 480px) {
-          .summary-kpis { gap: 12px; }
-          .summary-kpi-num { font-size: 26px !important; }
-          .report-title { font-size: 22px !important; }
-        }
       `}</style>
 
       <NavBar view={view} setView={setView} onEmail={() => setEmailPreview(true)} darkMode={darkMode} setDarkMode={setDarkMode} C={C}
