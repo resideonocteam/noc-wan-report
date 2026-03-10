@@ -720,6 +720,7 @@ function WorkspaceView({ data, setData, onAdd, onEdit, onDelete, onEmail, onSend
 
 // ── REPORT VIEW ───────────────────────────────────────────────────────────────
 function ReportView({ data, darkMode, C }) {
+  if (!data || !data.incidents) return null;
   const { incidents, engineerName, reportDate, recipientEmail } = data;
   const hardDown = incidents.filter(i => i.severity === "HARD DOWN").length;
   const degraded = incidents.filter(i => i.severity === "DEGRADED RESILIENCE").length;
@@ -1015,8 +1016,10 @@ function PublicReport() {
         </span>
       </div>
       {syncing
-        ? <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh", fontFamily: "'Inter', sans-serif", color: C.textMuted, fontSize: 14 }}>Loading report...</div>
-        : <ReportView incidents={data.incidents} C={C} darkMode={darkMode} readOnly />
+        ? <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh", fontFamily: "'Inter', sans-serif", color: C.textMuted, fontSize: 14 }}>⟳ Loading report...</div>
+        : data && data.incidents
+          ? <ReportView data={data} C={C} darkMode={darkMode} />
+          : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh", fontFamily: "'Inter', sans-serif", color: C.textMuted, fontSize: 14 }}>No report data available.</div>
       }
     </div>
   );
