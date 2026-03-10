@@ -986,8 +986,48 @@ function ArchiveView({ archives, onRestore, onDelete, darkMode, C }) {
   );
 }
 
+// ── PUBLIC REPORT VIEW (no login required) ────────────────────────────────────
+function PublicReport() {
+  const [data,     setData]     = useState(SEED);
+  const [syncing,  setSyncing]  = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
+  const C = useMemo(() => theme(darkMode), [darkMode]);
+
+  useEffect(() => {
+    loadReport().then(remote => {
+      if (remote) setData(remote);
+      setSyncing(false);
+    });
+    const unsub = subscribeReport(remote => setData(remote));
+    return () => unsub();
+  }, []);
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", color: C.textPrimary, fontFamily: "'Inter', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'); * { box-sizing: border-box; margin: 0; padding: 0; }`}</style>
+      <div style={{ background: SHARED.accent, padding: "10px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 18 }}>⚡</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 800, fontSize: 14, color: "#fff", letterSpacing: "0.05em" }}>WANINSIGHT · RESIDEO NOC</span>
+        </div>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
+          📋 Read-only · {data.reportDate}
+        </span>
+      </div>
+      {syncing
+        ? <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh", fontFamily: "'Inter', sans-serif", color: C.textMuted, fontSize: 14 }}>Loading report...</div>
+        : <ReportView incidents={data.incidents} C={C} darkMode={darkMode} readOnly />
+      }
+    </div>
+  );
+}
+
 // ── APP ───────────────────────────────────────────────────────────────────────
 export default function App() {
+  // Check for public report view BEFORE any auth logic
+  const isPublicView = new URLSearchParams(window.location.search).get("view") === "report";
+  if (isPublicView) return <PublicReport />;
+
   const [session,      setSession]      = useState(getSession);
   const [data,         setData]         = useState(SEED);
   const [view,         setView]         = useState("workspace");
@@ -1047,7 +1087,7 @@ export default function App() {
     const todayFormatted = `${monthNames[now.getMonth()]} ${day}${suffix}, ${now.getFullYear()}`;
 
     const subj = encodeURIComponent(`Daily network updates: [${statusLabel}] [${todayFormatted}]`);
-    const reportUrl = window.location.origin + window.location.pathname;
+    const reportUrl = window.location.origin + window.location.pathname + '?view=report';
 
     const greeting = impacted === 0
       ? "Great news — the Resideo network is running at full capacity with no active incidents to report."
