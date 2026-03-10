@@ -8,7 +8,6 @@ const ENGINEERS = [
   { name: "Alic Antunez",         email: "Alic.Antunez@resideo.com"         },
   { name: "Jorge Torres",         email: "Jorge.Torres@resideo.com"         },
   { name: "Guillermo Cerda",      email: "Guillermo.Cerda@resideo.com"      },
-  { name: "Adrian.Pliego",      email: "Adrian.Pliego@resideo.com"      },
   { name: "Thomas Pelkas",        email: "Thomas.Pelkas@resideo.com"        },
   { name: "Sachin Balachandran",  email: "Sachin.Balachandran@resideo.com"  },
 ];
@@ -1030,24 +1029,36 @@ export default function App() {
     saveArchive(snapshot);
     setArchives(prev => [snapshot, ...prev]);
 
-    // Build mailto with notification email as plain-text fallback
-    const { recipientEmail, reportDate, engineerName } = data;
+    // Build mailto
+    const { recipientEmail, engineerName } = data;
     const hd = data.incidents.filter(i => i.severity === "HARD DOWN").length;
     const dg = data.incidents.filter(i => i.severity === "DEGRADED RESILIENCE").length;
     const rs = data.incidents.filter(i => i.severity === "RESOLVED").length;
     const impacted = hd + dg;
-    const overall = hd > 0 ? "CRITICAL" : dg > 0 ? "WARNING" : "HEALTHY";
-    const subj = encodeURIComponent(`[${overall}] Resideo WAN Health Report — ${reportDate}`);
-    const azureUrl = "https://noc-wan-report.azurestaticapps.net";
+
+    // Status label: Red / Amber / Green
+    const statusLabel = hd > 0 ? "Red" : dg > 0 ? "Amber" : "Green";
+
+    // Today's date formatted as "Mar 9th, 2026"
+    const now = new Date();
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const day = now.getDate();
+    const suffix = day === 1 || day === 21 || day === 31 ? "st" : day === 2 || day === 22 ? "nd" : day === 3 || day === 23 ? "rd" : "th";
+    const todayFormatted = `${monthNames[now.getMonth()]} ${day}${suffix}, ${now.getFullYear()}`;
+
+    const subj = encodeURIComponent(`Daily network updates: [${statusLabel}] [${todayFormatted}]`);
+    const reportUrl = window.location.origin + window.location.pathname;
+
     const greeting = impacted === 0
       ? "Great news — the Resideo network is running at full capacity with no active incidents to report."
       : `The NOC team has published today's WAN health report. There are currently ${impacted} site${impacted !== 1 ? "s" : ""} requiring attention.`;
+
     const body = encodeURIComponent(
 `Hello team,
 
 ${greeting}
 
-Network Status: ${overall}
+Network Status: ${statusLabel}
 ━━━━━━━━━━━━━━━━━━━━━━━
   Hard Down : ${hd}
   Degraded  : ${dg}
@@ -1055,14 +1066,9 @@ Network Status: ${overall}
 ━━━━━━━━━━━━━━━━━━━━━━━
 
 View the full live report here:
-${azureUrl}
+${reportUrl}
 
-For circuit-level details, engineer handover notes, and incident logs, please access the report at the link above.
-
-—
-${engineerName} · NOC Team
-Prepared with WAN Insight Network Ops Pro
-Report Cycle: ${reportDate}`
+For circuit-level details, engineer handover notes, and incident logs, please access the report at the link above.`
     );
 
     const emails = recipientEmail.split(/[;,]/).map(e => e.trim()).filter(Boolean).join(",");
