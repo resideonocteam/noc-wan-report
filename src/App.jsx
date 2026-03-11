@@ -165,7 +165,7 @@ function CircuitTable({ circuits, inc, C }) {
           </colgroup>
           <thead>
             <tr style={{ background: C.bgCardAlt }}>
-              {["#","ISP","CIRCUIT ID","BW","STATUS"].map(h => (
+              {["#","ISP","CIRCUIT ID","BW (Mbps)","STATUS"].map(h => (
                 <th key={h} style={{ ...thStyle }}>{h}</th>
               ))}
             </tr>
@@ -178,7 +178,7 @@ function CircuitTable({ circuits, inc, C }) {
                   <td style={{ ...tdStyle, color: C.textSecondary }}>{i + 1}</td>
                   <td style={{ ...tdStyle, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.carrier || "—"}</td>
                   <td style={{ ...tdStyle, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.circuitId || "—"}</td>
-                  <td style={{ ...tdStyle, whiteSpace: "normal", wordBreak: "break-word" }}>{c.bw || "—"}</td>
+                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{(c.bw || "—").replace(/\s*[Mm]bps/g, "").replace(/\s*[Gg]bps/g, " Gbps").trim() || "—"}</td>
                   <td style={{ ...tdStyle, paddingRight: "clamp(6px, 1.5vw, 12px)", paddingLeft: "clamp(6px, 1.5vw, 12px)" }}>
                     <span style={{ display: "inline-block", background: sc.color + "22", color: sc.color, border: `1px solid ${sc.color}55`, fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(9px, 2vw, 11px)", letterSpacing: "0.04em", padding: "2px clamp(4px, 1.5vw, 8px)", borderRadius: 5, textTransform: "uppercase", whiteSpace: "nowrap" }}>{sc.label}</span>
                   </td>
@@ -817,7 +817,7 @@ function ReportView({ data, darkMode, C }) {
             </div>
           </div>
           {/* Pie chart — fixed small size so KPIs always fit */}
-          <div style={{ width: "clamp(80px, 18vw, 130px)", height: "clamp(80px, 18vw, 130px)", position: "relative", flexShrink: 0 }}>
+          <div style={{ width: "clamp(110px, 22vw, 140px)", height: "clamp(110px, 22vw, 140px)", position: "relative", flexShrink: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={pieData} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={62} startAngle={90} endAngle={-270} paddingAngle={3} strokeWidth={0}>
@@ -841,7 +841,7 @@ function ReportView({ data, darkMode, C }) {
           <div key={group.label} style={{ marginBottom: 40 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <div style={{ display: "inline-flex", alignItems: "center", padding: "8px 20px", background: cfg.getColor(), borderRadius: 6, fontFamily: SHARED.body, fontWeight: 700, fontSize: 12, letterSpacing: "0.1em", color: "#fff", textTransform: "uppercase" }}>{group.label}</div>
-              <span style={{ fontFamily: SHARED.body, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: C.textMuted, textTransform: "uppercase" }}>{group.items.length} Node{group.items.length !== 1 ? "s" : ""} Impacted</span>
+              <span style={{ fontFamily: SHARED.body, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: C.textMuted, textTransform: "uppercase" }}>{group.label === "RESOLVED" ? "No node impacted" : `${group.items.length} Node${group.items.length !== 1 ? "s" : ""} Impacted`}</span>
             </div>
             {group.items.map(inc => (
               <div key={inc.id} style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, padding: "clamp(14px, 3vw, 32px)", marginBottom: 20 }}>
