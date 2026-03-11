@@ -154,8 +154,8 @@ function CircuitTable({ circuits, inc, C }) {
   return (
     <div>
       {/* Circuit rows table */}
-      <div className="circuit-wrap" style={{ border: `1px solid ${C.border}`, marginBottom: 12 }}>
-        <table className="circuit-table">
+      <div style={{ borderRadius: 10, overflow: "hidden", overflowX: "auto", border: `1px solid ${C.border}`, marginBottom: 12 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 340 }}>
           <thead>
             <tr style={{ background: C.bgCardAlt }}>
               {["WAN","ISP","CIRCUIT ID","BW","STATUS"].map(h => (
@@ -617,12 +617,12 @@ function EmailPreviewModal({ html, notifHtml, onClose }) {
 function NavBar({ view, setView, onEmail, darkMode, setDarkMode, C, session, syncing, onLogout }) {
   return (
     <div style={{ background: C.navBg, borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, zIndex: 100, height: 52 }}>
-      <div className="navbar-inner">
+      <div style={{ maxWidth: 1200, margin: "0 auto", height: "100%", display: "flex", alignItems: "center", gap: 8, padding: "0 16px", flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 30, height: 30, borderRadius: 8, background: SHARED.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>⚡</div>
           <div>
             <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: 16, color: C.textPrimary, letterSpacing: "0.05em", lineHeight: 1 }}>WANINSIGHT</div>
-            <div className="navbar-logo-sub" style={{ fontFamily: SHARED.body, color: C.textMuted }}>NETWORK OPS PRO</div>
+            <div style={{ fontFamily: SHARED.body, fontSize: 9, color: C.textMuted, letterSpacing: "0.15em" }}>NETWORK OPS PRO</div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -645,7 +645,7 @@ function NavBar({ view, setView, onEmail, darkMode, setDarkMode, C, session, syn
             <div style={{ width: 28, height: 28, borderRadius: 7, background: SHARED.accent + "22", border: `1px solid ${SHARED.accent}44`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SHARED.body, fontWeight: 800, fontSize: 11, color: SHARED.accent }}>
               {session?.name?.split(" ").map(w => w[0]).join("").toUpperCase()}
             </div>
-            <span className="navbar-username" style={{ fontFamily: SHARED.body, color: C.textSecondary }}>{session?.name?.split(" ")[0]}</span>
+            <span style={{ fontFamily: SHARED.body, fontSize: 12, fontWeight: 600, color: C.textSecondary }}>{session?.name?.split(" ")[0]}</span>
             <button onClick={onLogout} style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 5, color: C.textMuted, fontFamily: SHARED.body, fontSize: 11, fontWeight: 600, padding: "3px 10px", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.06em" }}>Out</button>
           </div>
         </div>
@@ -660,7 +660,7 @@ function WorkspaceView({ data, setData, onAdd, onEdit, onDelete, onEmail, onSend
   const [sent, setSent] = useState(false);
   const doSend = () => onSend(setSent);
   return (
-    <div className="report-wrap">
+    <div style={{ maxWidth: 1140, margin: "0 auto", padding: "clamp(16px, 4vw, 40px) clamp(14px, 3vw, 24px)" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 32, marginBottom: 40, alignItems: "start" }}>
         <div>
           <h1 style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: 38, color: C.textPrimary, letterSpacing: "-0.01em", marginBottom: 24 }}>Resideo Network Health Report</h1>
@@ -760,26 +760,26 @@ function ReportView({ data, darkMode, C }) {
   return (
     <div style={{ maxWidth: 1140, margin: "0 auto", padding: "40px 24px" }}>
       {/* Header */}
-      <div className="report-header">
-        <div className="report-hdr-left">
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24, marginBottom: 32, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 260 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div style={{ width: 4, height: 52, background: SHARED.accent, borderRadius: 2, flexShrink: 0 }} />
-            <span className="report-title" style={{ color: C.textPrimary }}>NOC WAN HEALTH</span>
+            <span style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: "clamp(22px, 5vw, 44px)", color: C.textPrimary, letterSpacing: "-0.02em" }}>NOC WAN HEALTH</span>
           </div>
-          <div className="report-meta">
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 8, paddingLeft: 20, marginTop: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 13, color: C.textMuted }}>📅</span>
-            <span className="report-meta-txt" style={{ fontFamily: SHARED.body, color: C.textSecondary }}>CYCLE: {reportDate} • DISTRIBUTION: {recipientEmail}</span>
+            <span style={{ fontFamily: SHARED.body, fontSize: "clamp(10px, 2vw, 13px)", color: C.textSecondary, wordBreak: "break-word" }}>CYCLE: {reportDate} • DISTRIBUTION: {recipientEmail}</span>
           </div>
         </div>
-        <div className="report-hdr-cards">
-          <div className="report-hdr-card" style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px 20px" }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "16px 20px", minWidth: 130, flex: 1 }}>
             <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, textTransform: "uppercase", marginBottom: 10 }}>Network Engineer</div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 32, height: 32, borderRadius: 8, background: C.bgCardAlt, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SHARED.head, fontWeight: 800, fontSize: 13, color: SHARED.accent }}>{initials}</div>
               <div style={{ fontFamily: SHARED.head, fontWeight: 800, fontSize: 15, color: C.textPrimary, lineHeight: 1.2 }}>{engineerName.split(" ").map((w, i) => <div key={i}>{w}</div>)}</div>
             </div>
           </div>
-          <div className="report-hdr-card" style={{ background: overallBg, border: `1px solid ${overallColor}44`, borderRadius: 12, padding: "16px 20px" }}>
+          <div style={{ background: overallBg, border: `1px solid ${overallColor}44`, borderRadius: 12, padding: "16px 20px", minWidth: 130, flex: 1 }}>
             <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: overallColor + "aa", textTransform: "uppercase", marginBottom: 4 }}>Overall</div>
             <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: overallColor + "aa", textTransform: "uppercase", marginBottom: 10 }}>Condition</div>
             <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: 22, color: overallColor }}>{overall}</div>
@@ -788,15 +788,15 @@ function ReportView({ data, darkMode, C }) {
       </div>
 
       {/* Executive Metrics */}
-      <div className="summary-card" style={{ background: C.bgCard, border: `1px solid ${C.border}` }}>
+      <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, padding: "clamp(16px, 3vw, 28px)", marginBottom: 32 }}>
         <Label C={C} style={{ marginBottom: 20 }}>Summary</Label>
-        <div className="summary-inner">
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div style={{ flex: 1 }}>
-            <div className="summary-kpis">
+            <div style={{ display: "flex", gap: "clamp(16px, 4vw, 48px)", marginBottom: 24, flexWrap: "wrap" }}>
               {[[hardDown,"SITES DOWN",SHARED.red],[degraded,"DEGRADED",SHARED.orange],[resolved,"RESOLVED",SHARED.green]].map(([val,lbl,col]) => (
                 <div key={lbl}>
-                  <div className="kpi-num" style={{ color: col }}>{val}</div>
-                  <div className="kpi-lbl" style={{ color: C.textMuted }}>{lbl}</div>
+                  <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: "clamp(28px, 6vw, 48px)", color: col, lineHeight: 1 }}>{val}</div>
+                  <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, marginTop: 4, textTransform: "uppercase" }}>{lbl}</div>
                 </div>
               ))}
             </div>
@@ -808,7 +808,7 @@ function ReportView({ data, darkMode, C }) {
               </span>
             </div>
           </div>
-          <div className="pie-wrap" style={{ position: "relative" }}>
+          <div style={{ width: "clamp(90px, 15vw, 140px)", height: "clamp(90px, 15vw, 140px)", position: "relative", flexShrink: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={pieData} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={62} startAngle={90} endAngle={-270} paddingAngle={3} strokeWidth={0}>
@@ -835,12 +835,12 @@ function ReportView({ data, darkMode, C }) {
               <span style={{ fontFamily: SHARED.body, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: C.textMuted, textTransform: "uppercase" }}>{group.items.length} Node{group.items.length !== 1 ? "s" : ""} Impacted</span>
             </div>
             {group.items.map(inc => (
-              <div key={inc.id} className="inc-card" style={{ background: C.bgCard, border: `1px solid ${C.border}` }}>
-                <div className="inc-grid">
+              <div key={inc.id} style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, padding: "clamp(14px, 3vw, 32px)", marginBottom: 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "clamp(16px, 3vw, 32px)" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                       <span style={{ width: 8, height: 8, borderRadius: "50%", background: cfg.getColor(), flexShrink: 0, display: "inline-block" }} />
-                      <h3 className="inc-title" style={{ color: C.textPrimary }}>{inc.siteCode} {inc.siteName}</h3>
+                      <h3 style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: "clamp(17px, 3vw, 26px)", color: C.textPrimary, lineHeight: 1.1 }}>{inc.siteCode} {inc.siteName}</h3>
                     </div>
                     <div style={{ display: "inline-block", fontFamily: SHARED.mono, fontSize: 12, color: SHARED.accent, background: SHARED.accent + "18", padding: "3px 10px", borderRadius: 6, marginBottom: 20 }}>{inc.internalTicket}</div>
                     <div style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px 16px", marginBottom: 14 }}>
@@ -1140,76 +1140,7 @@ For circuit-level details, engineer handover notes, and incident logs, please ac
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #2a3040; border-radius: 3px; }
         option { background: #1e2636; }
-        /* ── Layout ── */
-        .report-wrap       { max-width: 1140px; margin: 0 auto; padding: 32px 24px; }
-        .report-header     { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin-bottom: 36px; }
-        .report-hdr-left   { flex: 1; min-width: 0; }
-        .report-hdr-cards  { display: flex; gap: 12px; flex-shrink: 0; }
-        .report-hdr-card   { min-width: 140px; }
-        .report-title      { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 44px; letter-spacing: -0.02em; line-height: 1.1; }
-        .report-meta       { display: flex; align-items: center; gap: 8px; padding-left: 20px; margin-top: 10px; }
-        .report-meta-txt   { font-size: 13px; word-break: break-word; }
-
-        /* ── Summary ── */
-        .summary-card      { border-radius: 16px; padding: 28px; margin-bottom: 32px; }
-        .summary-inner     { display: flex; align-items: center; gap: 24px; }
-        .summary-kpis      { display: flex; gap: 48px; margin-bottom: 24px; }
-        .kpi-num           { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 48px; line-height: 1; }
-        .kpi-lbl           { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; margin-top: 4px; text-transform: uppercase; }
-        .pie-wrap          { width: 140px; height: 140px; flex-shrink: 0; }
-
-        /* ── Incident cards ── */
-        .inc-card          { border-radius: 16px; padding: 32px; margin-bottom: 20px; }
-        .inc-grid          { display: grid; grid-template-columns: 1fr 1.4fr; gap: 32px; }
-        .inc-title         { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 26px; line-height: 1.1; }
-
-        /* ── NavBar ── */
-        .navbar-inner      { max-width: 1200px; margin: 0 auto; height: 100%; display: flex; align-items: center; gap: 8px; padding: 0 20px; }
-        .navbar-tabs       { display: flex; gap: 2px; margin-left: 8px; }
-        .navbar-right      { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-        .navbar-username   { font-size: 12px; font-weight: 600; }
-        .navbar-logo-sub   { font-size: 9px; letter-spacing: 0.1em; }
-
-        /* ── Workspace ── */
-        .workspace-wrap    { max-width: 980px; margin: 0 auto; padding: 32px 24px; }
-
-        /* ── Circuit table ── */
-        .circuit-table     { width: 100%; border-collapse: collapse; }
-        .circuit-wrap      { border-radius: 10px; overflow: hidden; overflow-x: auto; }
-
-        /* ── Tablet (≤768px) ── */
-        @media (max-width: 768px) {
-          .report-wrap      { padding: 20px 14px; }
-          .report-header    { flex-direction: column; gap: 16px; }
-          .report-hdr-cards { width: 100%; }
-          .report-hdr-card  { flex: 1; min-width: 0; }
-          .report-title     { font-size: 26px; }
-          .report-meta      { padding-left: 0; flex-wrap: wrap; }
-          .report-meta-txt  { font-size: 11px; }
-          .summary-card     { padding: 20px 16px; }
-          .summary-inner    { flex-direction: column; align-items: flex-start; gap: 16px; }
-          .summary-kpis     { gap: 24px; }
-          .kpi-num          { font-size: 34px; }
-          .pie-wrap         { width: 100px; height: 100px; align-self: center; }
-          .inc-card         { padding: 18px; }
-          .inc-grid         { grid-template-columns: 1fr; gap: 16px; }
-          .inc-title        { font-size: 20px; }
-          .navbar-inner     { padding: 0 10px; flex-wrap: wrap; gap: 4px; }
-          .navbar-username  { display: none; }
-          .navbar-logo-sub  { display: none; }
-          .workspace-wrap   { padding: 16px 12px; }
-        }
-
-        /* ── Mobile (≤480px) ── */
-        @media (max-width: 480px) {
-          .report-title     { font-size: 20px; }
-          .summary-kpis     { gap: 14px; flex-wrap: wrap; }
-          .kpi-num          { font-size: 28px; }
-          .inc-card         { padding: 14px; }
-          .inc-title        { font-size: 17px; }
-          .navbar-tabs a,
-          .navbar-tabs button { font-size: 11px; padding: 5px 8px; }
-        }
+        /* responsive handled via clamp() and flexWrap in inline styles */
       `}</style>
 
       <NavBar view={view} setView={setView} onEmail={() => setEmailPreview(true)} darkMode={darkMode} setDarkMode={setDarkMode} C={C}
