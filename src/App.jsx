@@ -149,16 +149,23 @@ function SiteAvatar({ code, sev, dark }) {
 }
 
 function CircuitTable({ circuits, inc, C }) {
-  const tdStyle = { padding: "11px 14px", fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 400, color: C.textPrimary };
-  const thStyle = { padding: "9px 14px", textAlign: "left", fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: C.textMuted, textTransform: "uppercase", borderBottom: `1px solid ${C.border}` };
+  const tdStyle = { padding: "clamp(6px, 2vw, 11px) clamp(6px, 2vw, 14px)", fontFamily: "'Inter', sans-serif", fontSize: "clamp(11px, 2.5vw, 13px)", fontWeight: 400, color: C.textPrimary };
+  const thStyle = { padding: "clamp(6px, 2vw, 9px) clamp(6px, 2vw, 14px)", textAlign: "left", fontFamily: "'Inter', sans-serif", fontSize: "clamp(8px, 2vw, 10px)", fontWeight: 700, letterSpacing: "0.06em", color: C.textMuted, textTransform: "uppercase", borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" };
   return (
     <div>
-      {/* Circuit rows table */}
-      <div style={{ borderRadius: 10, overflow: "hidden", overflowX: "auto", border: `1px solid ${C.border}`, marginBottom: 12 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 340 }}>
+      {/* Circuit rows table — no minWidth, fits any screen */}
+      <div style={{ borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}`, marginBottom: 12 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+          <colgroup>
+            <col style={{ width: "8%" }} />
+            <col style={{ width: "22%" }} />
+            <col style={{ width: "30%" }} />
+            <col style={{ width: "18%" }} />
+            <col style={{ width: "22%" }} />
+          </colgroup>
           <thead>
             <tr style={{ background: C.bgCardAlt }}>
-              {["WAN","ISP","CIRCUIT ID","BW","STATUS"].map(h => (
+              {["#","ISP","CIRCUIT ID","BW","STATUS"].map(h => (
                 <th key={h} style={{ ...thStyle }}>{h}</th>
               ))}
             </tr>
@@ -169,11 +176,11 @@ function CircuitTable({ circuits, inc, C }) {
               return (
                 <tr key={i} style={{ borderTop: `1px solid ${C.border}` }}>
                   <td style={{ ...tdStyle, color: C.textSecondary }}>{i + 1}</td>
-                  <td style={{ ...tdStyle }}>{c.carrier || "—"}</td>
-                  <td style={{ ...tdStyle }}>{c.circuitId || "—"}</td>
-                  <td style={{ ...tdStyle }}>{c.bw || "—"}</td>
-                  <td style={{ ...tdStyle }}>
-                    <span style={{ display: "inline-block", background: sc.color + "22", color: sc.color, border: `1px solid ${sc.color}55`, fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.06em", padding: "3px 10px", borderRadius: 5, textTransform: "uppercase" }}>{sc.label}</span>
+                  <td style={{ ...tdStyle, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.carrier || "—"}</td>
+                  <td style={{ ...tdStyle, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.circuitId || "—"}</td>
+                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{c.bw || "—"}</td>
+                  <td style={{ ...tdStyle, paddingRight: "clamp(4px, 1vw, 8px)" }}>
+                    <span style={{ display: "inline-block", background: sc.color + "22", color: sc.color, border: `1px solid ${sc.color}55`, fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(9px, 2vw, 11px)", letterSpacing: "0.04em", padding: "2px clamp(4px, 1.5vw, 8px)", borderRadius: 5, textTransform: "uppercase", whiteSpace: "nowrap" }}>{sc.label}</span>
                   </td>
                 </tr>
               );
@@ -181,19 +188,18 @@ function CircuitTable({ circuits, inc, C }) {
           </tbody>
         </table>
       </div>
-      {/* Site-level BW Utilization bar */}
+      {/* Site-level BW Utilization bar — stacks on mobile */}
       {(inc.bwAvailable || inc.bwAvg || inc.bwPeak) && (
-        <div style={{ background: SHARED.accent + "0d", border: `1px solid ${SHARED.accent}33`, borderRadius: 10, padding: "14px 18px", display: "flex", alignItems: "center", gap: 0 }}>
-          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: SHARED.accent, textTransform: "uppercase", marginRight: 24, whiteSpace: "nowrap" }}>Bandwidth Utilization</div>
-          {[["BW Available", inc.bwAvailable], ["BW Used Avg", inc.bwAvg], ["BW Used Peak", inc.bwPeak]].map(([label, val], i) => (
-            <div key={label} style={{ display: "flex", alignItems: "center", gap: 0 }}>
-              {i > 0 && <div style={{ width: 1, height: 32, background: SHARED.accent + "33", margin: "0 20px" }} />}
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: SHARED.accent + "99", textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 700, color: C.textPrimary }}>{val || "—"}</div>
+        <div style={{ background: SHARED.accent + "0d", border: `1px solid ${SHARED.accent}33`, borderRadius: 10, padding: "12px 14px" }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", color: SHARED.accent, textTransform: "uppercase", marginBottom: 10 }}>Bandwidth Utilization</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+            {[["BW Available", inc.bwAvailable], ["BW Used Avg", inc.bwAvg], ["BW Used Peak", inc.bwPeak]].map(([label, val]) => (
+              <div key={label} style={{ textAlign: "center", background: SHARED.accent + "08", borderRadius: 7, padding: "8px 4px" }}>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(7px, 1.8vw, 9px)", fontWeight: 600, letterSpacing: "0.06em", color: SHARED.accent + "99", textTransform: "uppercase", marginBottom: 4 }}>{label}</div>
+                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(11px, 3vw, 14px)", fontWeight: 700, color: C.textPrimary, wordBreak: "break-word" }}>{val || "—"}</div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -790,25 +796,28 @@ function ReportView({ data, darkMode, C }) {
       {/* Executive Metrics */}
       <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, padding: "clamp(16px, 3vw, 28px)", marginBottom: 32 }}>
         <Label C={C} style={{ marginBottom: 20 }}>Summary</Label>
-        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", gap: "clamp(16px, 4vw, 48px)", marginBottom: 24, flexWrap: "wrap" }}>
+        {/* KPIs row + pie always side by side */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+          {/* Three KPIs always in one row */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: "clamp(12px, 5vw, 48px)", marginBottom: 20 }}>
               {[[hardDown,"SITES DOWN",SHARED.red],[degraded,"DEGRADED",SHARED.orange],[resolved,"RESOLVED",SHARED.green]].map(([val,lbl,col]) => (
-                <div key={lbl}>
-                  <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: "clamp(28px, 6vw, 48px)", color: col, lineHeight: 1 }}>{val}</div>
-                  <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: C.textMuted, marginTop: 4, textTransform: "uppercase" }}>{lbl}</div>
+                <div key={lbl} style={{ textAlign: "center" }}>
+                  <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: "clamp(24px, 7vw, 48px)", color: col, lineHeight: 1 }}>{val}</div>
+                  <div style={{ fontFamily: SHARED.body, fontSize: "clamp(8px, 1.8vw, 10px)", fontWeight: 700, letterSpacing: "0.08em", color: C.textMuted, marginTop: 4, textTransform: "uppercase", whiteSpace: "nowrap" }}>{lbl}</div>
                 </div>
               ))}
             </div>
-            <div style={{ height: 1, background: C.border, marginBottom: 14 }} />
+            <div style={{ height: 1, background: C.border, marginBottom: 12 }} />
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: SHARED.accent, display: "inline-block" }} />
-              <span style={{ fontFamily: SHARED.body, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", color: C.textSecondary, textTransform: "uppercase" }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: SHARED.accent, display: "inline-block", flexShrink: 0 }} />
+              <span style={{ fontFamily: SHARED.body, fontSize: "clamp(10px, 2vw, 12px)", fontWeight: 700, letterSpacing: "0.06em", color: C.textSecondary, textTransform: "uppercase" }}>
                 Total Sites Impacted: <strong style={{ color: C.textPrimary }}>{impacted}</strong> active site{impacted !== 1 ? "s" : ""}
               </span>
             </div>
           </div>
-          <div style={{ width: "clamp(90px, 15vw, 140px)", height: "clamp(90px, 15vw, 140px)", position: "relative", flexShrink: 0 }}>
+          {/* Pie chart — fixed small size so KPIs always fit */}
+          <div style={{ width: "clamp(80px, 18vw, 130px)", height: "clamp(80px, 18vw, 130px)", position: "relative", flexShrink: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={pieData} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={62} startAngle={90} endAngle={-270} paddingAngle={3} strokeWidth={0}>
@@ -818,8 +827,8 @@ function ReportView({ data, darkMode, C }) {
               </PieChart>
             </ResponsiveContainer>
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-              <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, color: C.textMuted, letterSpacing: "0.1em", textTransform: "uppercase" }}>HEALTH</div>
-              <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: 22, color: C.textPrimary }}>{healthPct}%</div>
+              <div style={{ fontFamily: SHARED.body, fontSize: 9, fontWeight: 700, color: C.textMuted, letterSpacing: "0.1em", textTransform: "uppercase" }}>HEALTH</div>
+              <div style={{ fontFamily: SHARED.head, fontWeight: 900, fontSize: "clamp(16px, 4vw, 22px)", color: C.textPrimary }}>{healthPct}%</div>
             </div>
           </div>
         </div>
