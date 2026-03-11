@@ -304,10 +304,14 @@ function IncidentModal({ incident, onSave, onDiscard, C }) {
         )}
         {form.incidentType === "device" && (
           <div style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 12, padding: "18px 20px", marginBottom: 24 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
               <div>
                 <Label C={C}>Device Type</Label>
                 <FSelect C={C} value={form.deviceType || "Switch"} onChange={e => set("deviceType", e.target.value)} options={["Switch","Router","Firewall","Access Point","Other"]} />
+              </div>
+              <div>
+                <Label C={C}>Hostname</Label>
+                <FInput C={C} value={form.hostname || ""} onChange={e => set("hostname", e.target.value)} placeholder="e.g. SW-CAI1-01" />
               </div>
               <div>
                 <Label C={C}>Device Status</Label>
@@ -902,7 +906,7 @@ function ReportView({ data, darkMode, C }) {
                           <div style={{ fontSize: 28 }}>🖥</div>
                           <div>
                             <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: C.textMuted, textTransform: "uppercase", marginBottom: 4 }}>Affected Device</div>
-                            <div style={{ fontFamily: SHARED.head, fontWeight: 800, fontSize: 16, color: C.textPrimary }}>{inc.deviceType || "Device"}</div>
+                            <div style={{ fontFamily: SHARED.head, fontWeight: 800, fontSize: 16, color: C.textPrimary }}>{inc.deviceType || "Device"}{inc.hostname ? <span style={{ fontFamily: SHARED.body, fontWeight: 500, fontSize: 13, color: C.textSecondary, marginLeft: 8 }}>· {inc.hostname}</span> : ""}</div>
                             {inc.deviceStatus && (
                               <span style={{ display: "inline-block", marginTop: 6, background: (inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green) + "22", color: inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green, border: `1px solid ${(inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green)}55`, fontFamily: SHARED.body, fontWeight: 700, fontSize: 11, letterSpacing: "0.06em", padding: "3px 10px", borderRadius: 5, textTransform: "uppercase" }}>{inc.deviceStatus}</span>
                             )}
