@@ -67,7 +67,7 @@ const SEED = {
   engineerName: "Alic Antunez", // overridden at login reportDate: "2026-02-21",
   recipientEmail: "DL-DailyNetworkUpdates@resideo.com; resideonocteam@resideo.com",
   incidents: [
-    { id: "ok07", siteCode: "OK07", siteName: "Oklahoma City Hub", internalTicket: "INC0928374", severity: "DEGRADED RESILIENCE",
+    { id: "ok07", incidentType: "circuit", siteCode: "OK07", siteName: "Oklahoma City Hub", internalTicket: "INC0928374", severity: "DEGRADED RESILIENCE",
       description: "[14:28]: High latency observed on primary MPLS circuit. ISP-A investigating router hop 4 congestion.\n[15:45]: Congestion persists, traffic routed to secondary fiber.",
       userImpact: "Staff reporting 2-3 second delays in SAP and internal ERP tools.",
       handover: "Monitor ISP-A ticket #CONG-992 and request root cause analysis.",
@@ -76,7 +76,7 @@ const SEED = {
         { carrier: "ISP-A (Fiber)",  status: "Degraded",     circuitId: "CKT-992831", bw: "1Gbps"   },
         { carrier: "ISP-B (Direct)", status: "Healthy (UP)", circuitId: "CKT-001292", bw: "500Mbps" },
       ] },
-    { id: "tx12", siteCode: "TX12", siteName: "Dallas Logistics", internalTicket: "INC0921102", severity: "DEGRADED RESILIENCE",
+    { id: "tx12", incidentType: "circuit", siteCode: "TX12", siteName: "Dallas Logistics", internalTicket: "INC0921102", severity: "DEGRADED RESILIENCE",
       description: "[10:15]: WAN2 circuit reporting intermittent packet loss (5-8%).\n[11:00]: ISP-C confirms line noise at local CO. Technician dispatched.",
       userImpact: "VOIP calls reporting robotic voice symptoms during peak hours.",
       handover: "Awaiting technician arrival at CO (ETA 17:30). Shift hand-off required.",
@@ -85,12 +85,12 @@ const SEED = {
         { carrier: "ISP-B",             status: "Healthy (UP)", circuitId: "CKT-445102", bw: "200Mbps" },
         { carrier: "ISP-C (Broadband)", status: "Degraded",     circuitId: "CKT-882731", bw: "100Mbps" },
       ] },
-    { id: "ca01", siteCode: "CA01", siteName: "San Francisco", internalTicket: "INC0911552", severity: "RESOLVED",
+    { id: "ca01", incidentType: "circuit", siteCode: "CA01", siteName: "San Francisco", internalTicket: "INC0911552", severity: "RESOLVED",
       description: "[08:00]: Fiber cut reported at 3rd & Mission St. Primary WAN1 down.\n[16:20]: Fiber splicing complete. Link stable and passing traffic.",
       userImpact: "Resolved. Site was running on backup 5G resilience for 8 hours.",
       handover: "RCA scheduled for Friday. No further action needed.",
       circuits: [{ carrier: "ISP-A", status: "Healthy (UP)", circuitId: "CKT-112233", bw: "2Gbps", avgUsed: "200Mbps" }] },
-    { id: "ny05", siteCode: "NY05", siteName: "Manhattan East", internalTicket: "INC0919921", severity: "RESOLVED",
+    { id: "ny05", incidentType: "circuit", siteCode: "NY05", siteName: "Manhattan East", internalTicket: "INC0919921", severity: "RESOLVED",
       description: "[13:00]: Local power outage triggered UPS alerts. Routers rebooted.\n[14:15]: Power restored. All network interfaces confirmed green.",
       userImpact: "Full site connectivity restored. Verified with local point of contact.",
       handover: "Check UPS health logs during next maintenance window.",
@@ -208,7 +208,7 @@ function CircuitTable({ circuits, inc, C }) {
 
 // ── INCIDENT MODAL ────────────────────────────────────────────────────────────
 function IncidentModal({ incident, onSave, onDiscard, C }) {
-  const blank = { id: String(Date.now()), siteCode: "", siteName: "", internalTicket: "", severity: "DEGRADED RESILIENCE", description: "", userImpact: "", handover: "", bwAvailable: "", bwAvg: "", bwPeak: "", circuits: [{ carrier: "", status: "Healthy (UP)", circuitId: "", bw: "" }] };
+  const blank = { id: String(Date.now()), siteCode: "", siteName: "", internalTicket: "", severity: "DEGRADED RESILIENCE", incidentType: "circuit", description: "", userImpact: "", handover: "", bwAvailable: "", bwAvg: "", bwPeak: "", circuits: [{ carrier: "", status: "Healthy (UP)", circuitId: "", bw: "" }] };
   const [form, setForm] = useState(incident || blank);
   const [aiLoading, setAiLoading] = useState(false);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -233,9 +233,15 @@ function IncidentModal({ incident, onSave, onDiscard, C }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, width: "100%", maxWidth: 740, maxHeight: "92vh", overflowY: "auto", padding: 32 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <h2 style={{ fontFamily: C.head, fontWeight: 900, fontSize: 26, color: C.textPrimary }}>{incident ? "Edit Incident" : "Create Incident"}</h2>
           <span style={{ background: SHARED.accent + "22", border: `1px solid ${SHARED.accent}44`, borderRadius: 6, padding: "4px 12px", fontFamily: C.body, fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: SHARED.accent, textTransform: "uppercase" }}>{form.siteCode || "NEW_SITE_ID"}</span>
+        </div>
+        {/* Incident type toggle */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+          {[["circuit","🔗 Circuit / WAN"],["device","🖥 Device (Switch / Router)"]].map(([type, label]) => (
+            <button key={type} onClick={() => set("incidentType", type)} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1px solid ${form.incidentType === type ? SHARED.accent : C.border}`, background: form.incidentType === type ? SHARED.accent + "18" : C.bgCardAlt, color: form.incidentType === type ? SHARED.accent : C.textSecondary, fontFamily: C.body, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.15s" }}>{label}</button>
+          ))}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: 16, marginBottom: 20 }}>
           <div><Label C={C}>Site Code</Label><FInput C={C} value={form.siteCode} onChange={e => set("siteCode", e.target.value)} placeholder="e.g. OK07" /></div>
@@ -264,34 +270,52 @@ function IncidentModal({ incident, onSave, onDiscard, C }) {
             </div>
           </div>
         </div>
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <Label C={C} style={{ margin: 0 }}>Interface Management</Label>
-            <Btn C={C} onClick={addCirc} style={{ fontSize: 11, padding: "6px 14px" }}>+ Add Circuit</Btn>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {form.circuits.map((c, i) => (
-              <div key={i} style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px 16px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1.5fr 0.9fr auto", gap: 12, alignItems: "end" }}>
-                  <div><Label C={C}>ISP</Label><FInput C={C} value={c.carrier} onChange={e => setCirc(i,"carrier",e.target.value)} placeholder="ISP-A" /></div>
-                  <div><Label C={C}>Status</Label><FSelect C={C} value={c.status} onChange={e => setCirc(i,"status",e.target.value)} options={["Healthy (UP)","Degraded","Down"]} /></div>
-                  <div><Label C={C}>Circuit ID</Label><FInput C={C} value={c.circuitId} onChange={e => setCirc(i,"circuitId",e.target.value)} placeholder="CKT-000000" /></div>
-                  <div><Label C={C}>BW</Label><FInput C={C} value={c.bw} onChange={e => setCirc(i,"bw",e.target.value)} placeholder="1 Gbps" /></div>
-                  {form.circuits.length > 1 && <button onClick={() => delCirc(i)} style={{ background: "none", border: "none", cursor: "pointer", color: SHARED.red, fontSize: 18, paddingBottom: 4 }}>🗑</button>}
-                </div>
+        {form.incidentType !== "device" && (
+          <>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <Label C={C} style={{ margin: 0 }}>Interface Management</Label>
+                <Btn C={C} onClick={addCirc} style={{ fontSize: 11, padding: "6px 14px" }}>+ Add Circuit</Btn>
               </div>
-            ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {form.circuits.map((c, i) => (
+                  <div key={i} style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px 16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1.5fr 0.9fr auto", gap: 12, alignItems: "end" }}>
+                      <div><Label C={C}>ISP</Label><FInput C={C} value={c.carrier} onChange={e => setCirc(i,"carrier",e.target.value)} placeholder="ISP-A" /></div>
+                      <div><Label C={C}>Status</Label><FSelect C={C} value={c.status} onChange={e => setCirc(i,"status",e.target.value)} options={["Healthy (UP)","Degraded","Down"]} /></div>
+                      <div><Label C={C}>Circuit ID</Label><FInput C={C} value={c.circuitId} onChange={e => setCirc(i,"circuitId",e.target.value)} placeholder="CKT-000000" /></div>
+                      <div><Label C={C}>BW</Label><FInput C={C} value={c.bw} onChange={e => setCirc(i,"bw",e.target.value)} placeholder="1 Gbps" /></div>
+                      {form.circuits.length > 1 && <button onClick={() => delCirc(i)} style={{ background: "none", border: "none", cursor: "pointer", color: SHARED.red, fontSize: 18, paddingBottom: 4 }}>🗑</button>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Site-level BW Utilization */}
+            <div style={{ background: SHARED.accent + "0d", border: `1px solid ${SHARED.accent}33`, borderRadius: 12, padding: "18px 20px", marginBottom: 24 }}>
+              <Label C={C} style={{ color: SHARED.accent, marginBottom: 14 }}>Site Bandwidth Utilization</Label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                <div><Label C={C}>BW Available</Label><FInput C={C} value={form.bwAvailable} onChange={e => set("bwAvailable", e.target.value)} placeholder="1 / 1 Gbps" /></div>
+                <div><Label C={C}>BW Used Average</Label><FInput C={C} value={form.bwAvg} onChange={e => set("bwAvg", e.target.value)} placeholder="200 Mbps" /></div>
+                <div><Label C={C}>BW Used Peak</Label><FInput C={C} value={form.bwPeak} onChange={e => set("bwPeak", e.target.value)} placeholder="500 Mbps" /></div>
+              </div>
+            </div>
+          </>
+        )}
+        {form.incidentType === "device" && (
+          <div style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 12, padding: "18px 20px", marginBottom: 24 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div>
+                <Label C={C}>Device Type</Label>
+                <FSelect C={C} value={form.deviceType || "Switch"} onChange={e => set("deviceType", e.target.value)} options={["Switch","Router","Firewall","Access Point","Other"]} />
+              </div>
+              <div>
+                <Label C={C}>Device Status</Label>
+                <FSelect C={C} value={form.deviceStatus || "Down"} onChange={e => set("deviceStatus", e.target.value)} options={["Down","Degraded","Rebooting","Up"]} />
+              </div>
+            </div>
           </div>
-        </div>
-        {/* Site-level BW Utilization */}
-        <div style={{ background: SHARED.accent + "0d", border: `1px solid ${SHARED.accent}33`, borderRadius: 12, padding: "18px 20px", marginBottom: 24 }}>
-          <Label C={C} style={{ color: SHARED.accent, marginBottom: 14 }}>Site Bandwidth Utilization</Label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-            <div><Label C={C}>BW Available</Label><FInput C={C} value={form.bwAvailable} onChange={e => set("bwAvailable", e.target.value)} placeholder="1 / 1 Gbps" /></div>
-            <div><Label C={C}>BW Used Average</Label><FInput C={C} value={form.bwAvg} onChange={e => set("bwAvg", e.target.value)} placeholder="200 Mbps" /></div>
-            <div><Label C={C}>BW Used Peak</Label><FInput C={C} value={form.bwPeak} onChange={e => set("bwPeak", e.target.value)} placeholder="500 Mbps" /></div>
-          </div>
-        </div>
+        )}
         <div style={{ height: 1, background: C.border, marginBottom: 20 }} />
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
           <Btn C={C} variant="ghost" onClick={onDiscard}>Discard</Btn>
@@ -872,7 +896,21 @@ function ReportView({ data, darkMode, C }) {
                         </div>
                       </div>
                     )}
-                    {inc.circuits.length > 0 && <CircuitTable circuits={inc.circuits} inc={inc} C={C} />}
+                    {inc.incidentType === "device"
+                      ? (
+                        <div style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 16 }}>
+                          <div style={{ fontSize: 28 }}>🖥</div>
+                          <div>
+                            <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: C.textMuted, textTransform: "uppercase", marginBottom: 4 }}>Affected Device</div>
+                            <div style={{ fontFamily: SHARED.head, fontWeight: 800, fontSize: 16, color: C.textPrimary }}>{inc.deviceType || "Device"}</div>
+                            {inc.deviceStatus && (
+                              <span style={{ display: "inline-block", marginTop: 6, background: (inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green) + "22", color: inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green, border: `1px solid ${(inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green)}55`, fontFamily: SHARED.body, fontWeight: 700, fontSize: 11, letterSpacing: "0.06em", padding: "3px 10px", borderRadius: 5, textTransform: "uppercase" }}>{inc.deviceStatus}</span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                      : inc.circuits.length > 0 && <CircuitTable circuits={inc.circuits} inc={inc} C={C} />
+                    }
                   </div>
                 </div>
               </div>
