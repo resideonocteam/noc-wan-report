@@ -208,13 +208,17 @@ function CircuitTable({ circuits, inc, C }) {
 
 // ── INCIDENT MODAL ────────────────────────────────────────────────────────────
 function IncidentModal({ incident, onSave, onDiscard, C }) {
-  const blank = { id: String(Date.now()), siteCode: "", siteName: "", internalTicket: "", severity: "DEGRADED RESILIENCE", incidentType: "circuit", description: "", userImpact: "", handover: "", bwAvailable: "", bwAvg: "", bwPeak: "", circuits: [{ carrier: "", status: "Healthy (UP)", circuitId: "", bw: "" }] };
+  const blankDevice = { type: "Switch", hostname: "", status: "Down" };
+  const blank = { id: String(Date.now()), siteCode: "", siteName: "", internalTicket: "", severity: "DEGRADED RESILIENCE", incidentType: "circuit", description: "", userImpact: "", handover: "", bwAvailable: "", bwAvg: "", bwPeak: "", circuits: [{ carrier: "", status: "Healthy (UP)", circuitId: "", bw: "" }], devices: [{ type: "Switch", hostname: "", status: "Down" }] };
   const [form, setForm] = useState(incident || blank);
   const [aiLoading, setAiLoading] = useState(false);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const setCirc = (i, k, v) => setForm(f => ({ ...f, circuits: f.circuits.map((c, idx) => idx === i ? { ...c, [k]: v } : c) }));
   const addCirc = () => setForm(f => ({ ...f, circuits: [...f.circuits, { carrier: "", status: "Healthy (UP)", circuitId: "", bw: "" }] }));
   const delCirc = (i) => setForm(f => ({ ...f, circuits: f.circuits.filter((_, idx) => idx !== i) }));
+  const addDev = () => setForm(f => ({ ...f, devices: [...(f.devices || []), { type: "Switch", hostname: "", status: "Down" }] }));
+  const setDev = (i, k, v) => setForm(f => ({ ...f, devices: (f.devices || []).map((d, idx) => idx === i ? { ...d, [k]: v } : d) }));
+  const delDev = (i) => setForm(f => ({ ...f, devices: (f.devices || []).filter((_, idx) => idx !== i) }));
   const addTimestamp = () => {
     const now = new Date();
     set("description", (form.description ? form.description + "\n" : "") + `[${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}]: `);
@@ -303,20 +307,33 @@ function IncidentModal({ incident, onSave, onDiscard, C }) {
           </>
         )}
         {form.incidentType === "device" && (
-          <div style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 12, padding: "18px 20px", marginBottom: 24 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-              <div>
-                <Label C={C}>Device Type</Label>
-                <FSelect C={C} value={form.deviceType || "Switch"} onChange={e => set("deviceType", e.target.value)} options={["Switch","Router","Firewall","Access Point","Other"]} />
-              </div>
-              <div>
-                <Label C={C}>Hostname</Label>
-                <FInput C={C} value={form.hostname || ""} onChange={e => set("hostname", e.target.value)} placeholder="e.g. SW-CAI1-01" />
-              </div>
-              <div>
-                <Label C={C}>Device Status</Label>
-                <FSelect C={C} value={form.deviceStatus || "Down"} onChange={e => set("deviceStatus", e.target.value)} options={["Down","Degraded","Rebooting","Up"]} />
-              </div>
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <Label C={C} style={{ margin: 0 }}>Device Management</Label>
+              <Btn C={C} onClick={addDev} style={{ fontSize: 11, padding: "6px 14px" }}>+ Add Device</Btn>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {(form.devices || []).map((d, i) => (
+                <div key={i} style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px 16px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr 1fr auto", gap: 12, alignItems: "end" }}>
+                    <div>
+                      <Label C={C}>Device Type</Label>
+                      <FSelect C={C} value={d.type} onChange={e => setDev(i,"type",e.target.value)} options={["Switch","Router","Firewall","Access Point","Other"]} />
+                    </div>
+                    <div>
+                      <Label C={C}>Hostname</Label>
+                      <FInput C={C} value={d.hostname} onChange={e => setDev(i,"hostname",e.target.value)} placeholder="e.g. SW-CAI1-01" />
+                    </div>
+                    <div>
+                      <Label C={C}>Status</Label>
+                      <FSelect C={C} value={d.status} onChange={e => setDev(i,"status",e.target.value)} options={["Down","Degraded","Rebooting","Up"]} />
+                    </div>
+                    {(form.devices || []).length > 1 && (
+                      <button onClick={() => delDev(i)} style={{ background: "none", border: "none", cursor: "pointer", color: SHARED.red, fontSize: 18, paddingBottom: 4 }}>🗑</button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -901,16 +918,38 @@ function ReportView({ data, darkMode, C }) {
                       </div>
                     )}
                     {inc.incidentType === "device"
-                      ? (
-                        <div style={{ background: C.bgCardAlt, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", display: "flex", alignItems: "center", gap: 16 }}>
-                          <div style={{ fontSize: 28 }}>🖥</div>
-                          <div>
-                            <div style={{ fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: C.textMuted, textTransform: "uppercase", marginBottom: 4 }}>Affected Device</div>
-                            <div style={{ fontFamily: SHARED.head, fontWeight: 800, fontSize: 16, color: C.textPrimary }}>{inc.deviceType || "Device"}{inc.hostname ? <span style={{ fontFamily: SHARED.body, fontWeight: 500, fontSize: 13, color: C.textSecondary, marginLeft: 8 }}>· {inc.hostname}</span> : ""}</div>
-                            {inc.deviceStatus && (
-                              <span style={{ display: "inline-block", marginTop: 6, background: (inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green) + "22", color: inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green, border: `1px solid ${(inc.deviceStatus === "Down" ? SHARED.red : inc.deviceStatus === "Degraded" || inc.deviceStatus === "Rebooting" ? SHARED.orange : SHARED.green)}55`, fontFamily: SHARED.body, fontWeight: 700, fontSize: 11, letterSpacing: "0.06em", padding: "3px 10px", borderRadius: 5, textTransform: "uppercase" }}>{inc.deviceStatus}</span>
-                            )}
-                          </div>
+                      ? (inc.devices && inc.devices.length > 0) && (
+                        <div style={{ borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}` }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+                            <colgroup>
+                              <col style={{ width: "6%" }} />
+                              <col style={{ width: "28%" }} />
+                              <col style={{ width: "42%" }} />
+                              <col style={{ width: "24%" }} />
+                            </colgroup>
+                            <thead>
+                              <tr style={{ background: C.bgCardAlt }}>
+                                {["#","TYPE","HOSTNAME","STATUS"].map(h => (
+                                  <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontFamily: SHARED.body, fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: C.textMuted, textTransform: "uppercase", borderBottom: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{h}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {inc.devices.map((d, i) => {
+                                const devColor = d.status === "Down" ? SHARED.red : d.status === "Degraded" || d.status === "Rebooting" ? SHARED.orange : SHARED.green;
+                                return (
+                                  <tr key={i} style={{ borderTop: `1px solid ${C.border}` }}>
+                                    <td style={{ padding: "10px 12px", fontFamily: SHARED.body, fontSize: 13, color: C.textSecondary }}>{i + 1}</td>
+                                    <td style={{ padding: "10px 12px", fontFamily: SHARED.body, fontSize: 13, color: C.textPrimary }}>{d.type}</td>
+                                    <td style={{ padding: "10px 12px", fontFamily: SHARED.mono, fontSize: 12, color: C.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.hostname || "—"}</td>
+                                    <td style={{ padding: "10px 12px" }}>
+                                      <span style={{ display: "inline-block", background: devColor + "22", color: devColor, border: `1px solid ${devColor}55`, fontFamily: SHARED.body, fontWeight: 700, fontSize: 11, letterSpacing: "0.06em", padding: "3px 10px", borderRadius: 5, textTransform: "uppercase", whiteSpace: "nowrap" }}>{d.status}</span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
                         </div>
                       )
                       : inc.circuits.length > 0 && <CircuitTable circuits={inc.circuits} inc={inc} C={C} />
