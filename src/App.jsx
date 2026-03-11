@@ -157,11 +157,11 @@ function CircuitTable({ circuits, inc, C }) {
       <div style={{ borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}`, marginBottom: 12 }}>
         <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
           <colgroup>
-            <col style={{ width: "8%" }} />
-            <col style={{ width: "22%" }} />
-            <col style={{ width: "30%" }} />
+            <col style={{ width: "6%" }} />
             <col style={{ width: "18%" }} />
-            <col style={{ width: "22%" }} />
+            <col style={{ width: "26%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "30%" }} />
           </colgroup>
           <thead>
             <tr style={{ background: C.bgCardAlt }}>
@@ -178,8 +178,8 @@ function CircuitTable({ circuits, inc, C }) {
                   <td style={{ ...tdStyle, color: C.textSecondary }}>{i + 1}</td>
                   <td style={{ ...tdStyle, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.carrier || "—"}</td>
                   <td style={{ ...tdStyle, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.circuitId || "—"}</td>
-                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{c.bw || "—"}</td>
-                  <td style={{ ...tdStyle, paddingRight: "clamp(4px, 1vw, 8px)" }}>
+                  <td style={{ ...tdStyle, whiteSpace: "normal", wordBreak: "break-word" }}>{c.bw || "—"}</td>
+                  <td style={{ ...tdStyle, paddingRight: "clamp(6px, 1.5vw, 12px)", paddingLeft: "clamp(6px, 1.5vw, 12px)" }}>
                     <span style={{ display: "inline-block", background: sc.color + "22", color: sc.color, border: `1px solid ${sc.color}55`, fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(9px, 2vw, 11px)", letterSpacing: "0.04em", padding: "2px clamp(4px, 1.5vw, 8px)", borderRadius: 5, textTransform: "uppercase", whiteSpace: "nowrap" }}>{sc.label}</span>
                   </td>
                 </tr>
